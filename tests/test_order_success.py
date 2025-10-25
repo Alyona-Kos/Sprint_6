@@ -2,23 +2,104 @@ from pages.order_page import OrderPage
 import allure
 import pytest
 
-@pytest.mark.parametrize('button', ['header_button', 'page_button'])
-def test_order_upp_success(driver, button):
-    order_page = OrderPage(driver)
-    order_page.open_url()
 
-    with allure.step(f"Проверяем возможность сделать заказ самоката через кнопку Заказать вверху лэндинга"):
-        order_page.click_on_element_make_order_header(button=button)
-        order_page.name_field_find_element_with_wait()
-        order_page.fill_name_field()
-        order_page.fill_surname_field()
-        order_page.fill_adress_field()
-        order_page.select_metro()
-        order_page.fill_phone_field()
-        order_page.click_on_element_next()
-        order_page.pick_date()
-        order_page.pick_rental_period()
-        order_page.click_on_element_color_black()
-        order_page.fill_comment_field()
-        order_page.click_on_element_create_order()
-        order_page.click_on_element_confirm_order_yes()
+@allure.suite("Тесты успешного оформления заказа")
+class TestOrderSuccess:
+    
+    @pytest.mark.parametrize('button', ['header_button', 'page_button'])
+    @allure.title("Тест оформления заказа через {button}")
+    def test_order_success(self, driver, button):
+        with allure.step("Открываем главную страницу"):
+            order_page = OrderPage(driver)
+            order_page.open_url()
+
+        with allure.step(f"Кликаем на кнопку заказа: {button}"):
+            if button == 'header_button':
+                order_page.click_header_order_button()
+            else:
+                order_page.click_page_order_button()
+
+        with allure.step("Заполняем первую страницу формы заказа"):
+            order_page.fill_first_order_page(
+                name="Иван",
+                surname="Петров",
+                address="ул. Ленина, д. 10",
+                metro_station="Сокольники",  # Используем существующую станцию
+                phone="+79991234567"
+            )
+            order_page.click_next_button()
+
+        with allure.step("Заполняем вторую страницу формы заказа"):
+            order_page.fill_second_order_page(
+                delivery_date="2024-12-31",
+                rental_period="сутки",
+                color="black",
+                comment="Позвонить за час до доставки"
+            )
+            order_page.click_order_button()
+
+        with allure.step("Подтверждаем заказ в модальном окне"):
+            order_page.confirm_order()
+
+        with allure.step("Проверяем успешное оформление заказа"):
+            assert order_page.is_order_successful(), "Заказ не был успешно оформлен"
+
+    @allure.title("Тест полного оформления заказа с использованием удобного метода")
+    def test_complete_order_flow(self, driver):
+        with allure.step("Открываем главную страницу"):
+            order_page = OrderPage(driver)
+            order_page.open_url()
+
+        with allure.step("Кликаем на кнопку заказа в хедере"):
+            order_page.click_header_order_button()
+
+        with allure.step("Выполняем полный процесс оформления заказа"):
+            order_data = {
+                'name': 'Мария',
+                'surname': 'Сидорова',
+                'address': 'пр. Мира, д. 25',
+                'metro_station': 'Лубянка',  # Используем существующую станцию
+                'phone': '+79987654321',
+                'delivery_date': '2024-12-25',
+                'rental_period': 'двое суток',
+                'color': 'grey',
+                'comment': 'Оставить у двери'
+            }
+            order_page.make_complete_order(order_data)
+
+        with allure.step("Проверяем успешное оформление заказа"):
+            assert order_page.is_order_successful(), "Заказ не был успешно оформлен"
+
+    @allure.title("Тест оформления заказа с минимальными данными")
+    def test_minimal_order_data(self, driver):
+        with allure.step("Открываем главную страницу"):
+            order_page = OrderPage(driver)
+            order_page.open_url()
+
+        with allure.step("Кликаем на кнопку заказа на странице"):
+            order_page.click_page_order_button()
+
+        with allure.step("Заполняем первую страницу формы заказа минимальными данными"):
+            order_page.fill_first_order_page(
+                name="Анна",
+                surname="Иванова",
+                address="ул. Пушкина, д. 1",
+                metro_station="Красные Ворота",  # Используем существующую станцию
+                phone="+79991112233"
+            )
+            order_page.click_next_button()
+
+        with allure.step("Заполняем вторую страницу формы заказа минимальными данными"):
+            order_page.fill_second_order_page(
+                delivery_date="2024-12-20",
+                rental_period="сутки",
+                color="black",
+                comment=""
+            )
+            order_page.click_order_button()
+
+        with allure.step("Подтверждаем заказ в модальном окне"):
+            order_page.confirm_order()
+
+        with allure.step("Проверяем успешное оформление заказа"):
+            assert order_page.is_order_successful(), "Заказ не был успешно оформлен"

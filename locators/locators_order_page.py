@@ -18,3 +18,8 @@ class Oder_page_locators:
     INPUT_COMMENT = (By.CSS_SELECTOR, "input.Input_Input__1iN_Z.Input_Responsible__1jDKN[placeholder='Комментарий для курьера']")
     CREATE_ORDER = [By.XPATH, '//div[@class="Order_Buttons__1xGrp"]/button[text()="Заказать"]']
     BUTTON_CONFIRM_ORDER_YES = [By.XPATH, '//button[text()="Да"]']
+    
+    # Добавленные локаторы для проверки успешного заказа
+    SUCCESS_MESSAGE = (By.XPATH, "//div[contains(text(), 'Заказ оформлен')]")
+    ORDER_NUMBER = (By.XPATH, "//div[contains(@class, 'Order_Text')]")
+    SUCCESS_MODAL = (By.XPATH, "//div[contains(@class, 'Order_Modal')]")

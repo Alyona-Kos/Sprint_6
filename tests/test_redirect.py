@@ -1,34 +1,49 @@
-
 from pages.landing_page import LandingPage
 from pages.redirect_page import RedirectPage
 import allure
 
 
+@allure.suite("Тесты редиректов по логотипам")
+class TestLogoRedirects:
+    
+    @allure.title("Тест редиректа на главную страницу через логотип Самоката")
+    def test_logo_redirect(self, driver):
+        with allure.step("Открываем главную страницу Самоката"):
+            landing_page = LandingPage(driver)
+            landing_page.open_url()
 
-def test_LOGO_REDIRECT(driver):
-    order_page = LandingPage(driver)
-    order_page.open_url()
+        with allure.step("Кликаем на кнопку заказа для перехода на страницу заказа"):
+            landing_page.click_on_order_button()
 
-    with allure.step(f"Проверяем переход на главную страницу Я.Самокат при клике на Лого сервиса в шапке"):
-        order_page.click_on_order_button()
+        with allure.step("Кликаем на логотип Самоката в хедере"):
+            redirect_page = RedirectPage(driver)
+            redirect_page.click_on_logo_scooter()
 
-        logo_page = RedirectPage(driver)
-        logo_page.click_on_LOGO_SCOOTER()
-        assert logo_page.get_current_url() == 'https://qa-scooter.praktikum-services.ru/'
+        with allure.step("Проверяем, что произошел редирект на главную страницу"):
+            current_url = redirect_page.get_current_url()
+            expected_url = 'https://qa-scooter.praktikum-services.ru/'
+            assert current_url == expected_url
 
+    @allure.title("Тест редиректа на Дзен через логотип Яндекса")
+    def test_logo_redirect_dzen(self, driver):
+        with allure.step("Открываем главную страницу Самоката"):
+            landing_page = LandingPage(driver)
+            landing_page.open_url()
 
-def test_LOGO_REDIRECT_DZEN(driver):
-    order_page = LandingPage(driver)
-    order_page.open_url()
+        with allure.step("Кликаем на логотип Яндекса в хедере"):
+            redirect_page = RedirectPage(driver)
+            redirect_page.click_on_logo_yandex()
 
-    with allure.step('Проверяем редирект при клике на логотип яндекса в хедере.'):
-        redirect_dzen_test = RedirectPage(driver)
-        redirect_dzen_test.click_on_LOGO_YANDEX()
+        with allure.step("Проверяем, что открылась новая вкладка"):
+            window_count = redirect_page.get_window_handles_count()
+            assert window_count == 2
 
-        # Переключаемся на новую вкладку:
-        handles = driver.window_handles
-        assert len(handles) == 2
-        driver.switch_to.window(handles[1])
-        redirect_dzen_test.find_element_find_button()
-        final_url = redirect_dzen_test.get_current_url()
-        assert 'dzen' in final_url
+        with allure.step("Переключаемся на новую вкладку"):
+            redirect_page.switch_to_window(1)
+
+        with allure.step("Ожидаем загрузку страницы Дзена и проверяем элементы"):
+            redirect_page.find_element_find_button()
+            
+        with allure.step("Проверяем, что URL содержит 'dzen'"):
+            current_url = redirect_page.get_current_url()
+            assert 'dzen' in current_url
