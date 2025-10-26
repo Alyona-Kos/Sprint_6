@@ -3,7 +3,9 @@ import allure
 import pytest
 
 
-class LandingAnswers:
+@allure.suite("Тесты вопросов на главной странице")
+class TestLandingPage:
+    # Константы с ожидаемыми ответами вынесены в класс теста
     ANSWERS = {
         0: 'Сутки — 400 рублей. Оплата курьеру — наличными или картой.',
         1: 'Пока что у нас так: один заказ — один самокат. Если хотите покататься с друзьями, можете просто сделать несколько заказов — один за другим.',
@@ -14,14 +16,10 @@ class LandingAnswers:
         6: 'Да, пока самокат не привезли. Штрафа не будет, объяснительной записки тоже не попросим. Все же свои.',
         7: 'Да, обязательно. Всем самокатов! И Москве, и Московской области.'
     }
-
-
-@allure.suite("Тесты вопросов на главной странице")
-class TestLandingPage:
     
-    @pytest.mark.parametrize("question_num, expected_answer", LandingAnswers.ANSWERS.items())
+    @pytest.mark.parametrize("question_num, expected_answer", ANSWERS.items())
     @allure.title("Тест вопроса №{question_num}")
-    def test_landing_page(self, driver, question_num, expected_answer):
+    def test_landing_page_questions(self, driver, question_num, expected_answer):
         with allure.step("Открываем главную страницу Самоката"):
             landing_page = LandingPage(driver)
             landing_page.open_url()
